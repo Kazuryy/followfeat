@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { LogOut, Settings } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navLinks = [
   { href: "/feedback", label: "Feedback" },
@@ -59,6 +60,8 @@ export function Navbar() {
             </Link>
           ))}
         </div>
+
+        <ThemeToggle />
 
         {/* User menu */}
         <div className="relative" ref={menuRef}>

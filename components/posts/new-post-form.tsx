@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +20,7 @@ interface NewPostFormProps {
 
 export function NewPostForm({ boards, tags, onCreated, defaultBoardId }: NewPostFormProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -52,6 +54,7 @@ export function NewPostForm({ boards, tags, onCreated, defaultBoardId }: NewPost
       setContent("");
       setSelectedTagIds([]);
       setOpen(false);
+      router.refresh();
       onCreated?.();
     } else {
       const data = await res.json();

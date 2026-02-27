@@ -59,7 +59,15 @@ export function RoadmapBoard({ initialPosts, statuses }: RoadmapBoardProps) {
     if (!over || !isAdmin) return;
 
     const postId = active.id as string;
-    const targetStatusId = over.id as string;
+    const overId = over.id as string;
+
+    // over.id is either a status ID (column droppable) or a post ID (card droppable)
+    const isStatus = statuses.some((s) => s.id === overId);
+    const targetStatusId = isStatus
+      ? overId
+      : posts.find((p) => p.id === overId)?.statusId;
+
+    if (!targetStatusId) return;
 
     const post = posts.find((p) => p.id === postId);
     if (!post || post.statusId === targetStatusId) return;
@@ -95,19 +103,21 @@ export function RoadmapBoard({ initialPosts, statuses }: RoadmapBoardProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {roadmapStatuses.map((status) => {
-          const columnPosts = posts.filter((p) => p.statusId === status.id);
-          return (
-            <RoadmapColumn
-              key={status.id}
-              id={status.id}
-              name={status.name}
-              color={status.color}
-              cards={columnPosts}
-            />
-          );
-        })}
+      <div className="-mx-4 sm:mx-0 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-4 px-4 sm:px-0">
+          {roadmapStatuses.map((status) => {
+            const columnPosts = posts.filter((p) => p.statusId === status.id);
+            return (
+              <RoadmapColumn
+                key={status.id}
+                id={status.id}
+                name={status.name}
+                color={status.color}
+                cards={columnPosts}
+              />
+            );
+          })}
+        </div>
       </div>
 
       <DragOverlay>

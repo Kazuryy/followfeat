@@ -126,7 +126,7 @@ export function RoadmapColumn({ id, name, color, cards }: RoadmapColumnProps) {
       <div
         ref={setNodeRef}
         className={cn(
-          "flex flex-col gap-2 rounded-xl p-2 min-h-[120px] transition-colors",
+          "flex flex-col gap-2 rounded-xl p-2 min-h-30 transition-colors",
           isOver
             ? "bg-zinc-100 dark:bg-zinc-900"
             : "bg-zinc-50 dark:bg-zinc-900/50"

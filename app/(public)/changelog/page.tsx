@@ -49,7 +49,7 @@ export default async function ChangelogPage() {
       ) : (
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute left-[11px] top-4 bottom-4 w-px bg-zinc-200 dark:bg-zinc-800" />
+          <div className="absolute left-2.75 top-4 bottom-4 w-px bg-zinc-200 dark:bg-zinc-800" />
 
           <div className="flex flex-col gap-10">
             {parsed.map((entry) => (

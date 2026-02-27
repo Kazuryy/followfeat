@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   });
 
   return NextResponse.json(
-    entries.map((e) => ({
+    entries.map((e: (typeof entries)[number]) => ({
       ...e,
       categories: JSON.parse(e.categories),
     }))

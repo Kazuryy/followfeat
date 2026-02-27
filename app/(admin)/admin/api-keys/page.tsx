@@ -19,7 +19,7 @@ export default async function ApiKeysPage() {
     },
   });
 
-  const serialized = keys.map((k) => ({
+  const serialized = keys.map((k: (typeof keys)[number]) => ({
     ...k,
     lastUsedAt: k.lastUsedAt?.toISOString() ?? null,
     expiresAt: k.expiresAt?.toISOString() ?? null,

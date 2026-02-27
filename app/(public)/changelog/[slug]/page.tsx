@@ -31,7 +31,7 @@ export default async function ChangelogEntryPage({ params }: PageProps) {
 
   type Category = { value: string; label: string; color: string };
   const categoryMap: Record<string, Category> = Object.fromEntries(
-    allCategories.map((c) => [c.value, c])
+    allCategories.map((c: (typeof allCategories)[number]) => [c.value, c])
   );
 
   const categories = JSON.parse(entry.categories) as string[];

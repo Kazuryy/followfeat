@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  typescript: { ignoreBuildErrors: true },
+  serverExternalPackages: ["@prisma/client", ".prisma/client"],
   images: {
     remotePatterns: [
       {

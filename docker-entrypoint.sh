@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-# Run Prisma migrations
+# Run database migrations (custom runner, no @prisma/engines needed)
 echo "Running database migrations..."
-node node_modules/prisma/build/index.js migrate deploy
+node scripts/migrate.mjs
 
 # Seed initial data if DB is empty (boards, statuses, changelog categories)
 echo "Seeding database..."

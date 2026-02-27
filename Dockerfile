@@ -5,7 +5,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ─── Build ────────────────────────────────────────────────────────────────
 FROM base AS builder
@@ -13,7 +13,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ENV NEXT_TELEMETRY_DISABLED=1
+
 RUN pnpm prisma generate
+# Verify Prisma client loads correctly before building
+RUN node -e "require('@prisma/client'); console.log('Prisma client OK')"
 # Compile seed.ts to plain CJS so the runner stage doesn't need tsx
 RUN node_modules/.bin/esbuild prisma/seed.ts \
     --platform=node --format=cjs --bundle \
@@ -28,27 +32,23 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
 # Copy standalone output
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Copy Prisma schema + generated client
+# Copy Prisma migrations + generated client (no Prisma CLI needed at runtime)
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Startup script that runs migrations before starting
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+# Custom migration runner (uses node:sqlite built-in, no @prisma/engines)
+COPY --from=builder /app/scripts ./scripts
+
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
-
-USER nextjs
+RUN mkdir -p /app/data
 
 EXPOSE 3000
 ENV PORT=3000

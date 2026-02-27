@@ -8,6 +8,16 @@ import type { Metadata } from "next";
 export const metadata: Metadata = { title: "Changelog" };
 export const dynamic = "force-dynamic";
 
+function getExcerpt(html: string): string {
+  const start = html.indexOf("<p");
+  const end = html.indexOf("</p>", start);
+  const inner = start !== -1 && end !== -1
+    ? html.slice(html.indexOf(">", start) + 1, end)
+    : html;
+  const text = inner.replace(/<[^>]*>/g, "").trim();
+  return text.length > 160 ? text.slice(0, 160) + "…" : text;
+}
+
 export default async function ChangelogPage() {
   const entries = await prisma.changelogEntry.findMany({
     where: { state: "LIVE" },
@@ -83,9 +93,8 @@ export default async function ChangelogPage() {
                         <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">
                           {entry.title}
                         </h2>
-                        {/* Content preview — strip HTML tags */}
-                        <p className="mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">
-                          {entry.content.replace(/<[^>]*>/g, "").trim()}
+                        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                          {getExcerpt(entry.content)}
                         </p>
                       </div>
                     </div>

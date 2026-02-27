@@ -5,6 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import { Markdown } from "tiptap-markdown";
 import { cn } from "@/lib/utils";
 import {
   Bold,
@@ -58,6 +59,7 @@ export function ChangelogEditor({ content, onChange }: ChangelogEditorProps) {
       Image,
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: "Write your changelog entry..." }),
+      Markdown.configure({ transformPastedText: true }),
     ],
     content,
     onUpdate: ({ editor }) => {

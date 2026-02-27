@@ -31,45 +31,84 @@ const adminLinks = [
 export function AdminSidebar() {
   const pathname = usePathname();
 
+  const isActive = (link: (typeof adminLinks)[number]) =>
+    link.exact ? pathname === link.href : pathname.startsWith(link.href);
+
   return (
-    <aside className="flex w-56 flex-col gap-1 border-r border-zinc-200 bg-white px-3 py-4 dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="mb-4 px-3">
-        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-          Admin
-        </span>
+    <>
+      {/* Mobile: horizontal scrollable top bar */}
+      <div className="md:hidden sticky top-0 z-30 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex gap-1 px-3 py-2 w-max">
+            {adminLinks.map((link) => {
+              const Icon = link.icon;
+              const active = isActive(link);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors",
+                    active
+                      ? "bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900"
+                      : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+                  )}
+                >
+                  <Icon size={13} />
+                  {link.label}
+                </Link>
+              );
+            })}
+            <div className="mx-1 w-px self-stretch bg-zinc-200 dark:bg-zinc-800" />
+            <Link
+              href="/feedback"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
+            >
+              <ArrowLeft size={13} />
+              App
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {adminLinks.map((link) => {
-        const Icon = link.icon;
-        const active = link.exact
-          ? pathname === link.href
-          : pathname.startsWith(link.href);
-        return (
+      {/* Desktop: vertical sidebar */}
+      <aside className="hidden md:flex w-56 shrink-0 flex-col gap-1 border-r border-zinc-200 bg-white px-3 py-4 dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="mb-4 px-3">
+          <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            Admin
+          </span>
+        </div>
+
+        {adminLinks.map((link) => {
+          const Icon = link.icon;
+          const active = isActive(link);
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                active
+                  ? "bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900"
+                  : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+              )}
+            >
+              <Icon size={15} />
+              {link.label}
+            </Link>
+          );
+        })}
+
+        <div className="mt-auto">
           <Link
-            key={link.href}
-            href={link.href}
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              active
-                ? "bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900"
-                : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
-            )}
+            href="/feedback"
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-50"
           >
-            <Icon size={15} />
-            {link.label}
+            <ArrowLeft size={15} />
+            Back to app
           </Link>
-        );
-      })}
-
-      <div className="mt-auto">
-        <Link
-          href="/feedback"
-          className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-50"
-        >
-          <ArrowLeft size={15} />
-          Back to app
-        </Link>
-      </div>
-    </aside>
+        </div>
+      </aside>
+    </>
   );
 }

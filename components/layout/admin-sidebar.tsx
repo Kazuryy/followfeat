@@ -10,6 +10,7 @@ import {
   FileText,
   Grid2X2,
   Users,
+  KeyRound,
   Settings,
   ArrowLeft,
 } from "lucide-react";
@@ -21,6 +22,7 @@ const adminLinks = [
   { href: "/admin/roadmap", label: "Roadmap", icon: Map },
   { href: "/admin/changelog", label: "Changelog", icon: FileText },
   { href: "/admin/members", label: "Members", icon: Users },
+  { href: "/admin/api-keys", label: "API Keys", icon: KeyRound },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

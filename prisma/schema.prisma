@@ -24,6 +24,19 @@ model user {
   posts         Post[]
   votes         Vote[]
   comments      Comment[]
+  apiKeys       ApiKey[]
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  keyHash     String    @unique
+  prefix      String
+  createdById String
+  createdBy   user      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
 }
 
 model session {

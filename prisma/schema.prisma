@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Better Auth models ────────────────────────────────────────────────────
+
+model user {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  role          String    @default("user")
+  banned        Boolean   @default(false)
+  sessions      session[]
+  accounts      account[]
+  posts         Post[]
+  votes         Vote[]
+  comments      Comment[]
+}
+
+model session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+}
+
+model verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+}
+
+// ─── Domain models ────────────────────────────────────────────────────────
+
+model Board {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  icon      String?
+  position  Int      @default(0)
+  posts     Post[]
+  createdAt DateTime @default(now())
+}
+
+model Status {
+  id       String     @id @default(cuid())
+  name     String
+  color    String
+  type     StatusType
+  position Int        @default(0)
+  posts    Post[]
+}
+
+enum StatusType {
+  REVIEWING
+  UNSTARTED
+  ACTIVE
+  COMPLETED
+  CANCELED
+}
+
+model Tag {
+  id    String  @id @default(cuid())
+  name  String  @unique
+  color String?
+  posts Post[]  @relation("PostTags")
+}
+
+model Post {
+  id        String    @id @default(cuid())
+  title     String
+  content   String?
+  slug      String    @unique
+  boardId   String
+  board     Board     @relation(fields: [boardId], references: [id])
+  statusId  String
+  status    Status    @relation(fields: [statusId], references: [id])
+  authorId  String
+  author    user      @relation(fields: [authorId], references: [id])
+  votes     Vote[]
+  voteCount Int       @default(0)
+  comments  Comment[]
+  tags      Tag[]     @relation("PostTags")
+  isPinned  Boolean   @default(false)
+  eta       DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    user     @relation(fields: [authorId], references: [id])
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ChangelogEntry {
+  id            String               @id @default(cuid())
+  title         String
+  slug          String               @unique
+  content       String
+  categories    String               @default("[]")
+  featuredImage String?
+  publishedAt   DateTime?
+  state         PublishState         @default(DRAFT)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+enum PublishState {
+  DRAFT
+  LIVE
+}
+
+model NotificationSettings {
+  id              String  @id @default("singleton")
+  // Email
+  emailEnabled    Boolean @default(false)
+  smtpHost        String?
+  smtpPort        Int     @default(587)
+  smtpUser        String?
+  smtpPass        String?
+  emailFrom       String?
+  emailTo         String?
+  // Discord
+  discordEnabled  Boolean @default(false)
+  discordWebhook  String?
+  // Event toggles
+  onNewPost       Boolean @default(true)
+  onStatusChange  Boolean @default(true)
+  onNewComment    Boolean @default(false)
+  onVoteThreshold Boolean @default(false)
+  voteThreshold   Int     @default(10)
+}

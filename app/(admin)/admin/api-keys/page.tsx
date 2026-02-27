@@ -37,22 +37,40 @@ export default async function ApiKeysPage() {
         </p>
       </div>
 
-      <div className="mb-6 rounded-xl border border-zinc-100 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
-        <p className="mb-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
-          Publier un changelog via l&apos;API
-        </p>
-        <pre className="overflow-x-auto text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">{`POST /api/v1/changelog
+      <div className="mb-6 space-y-3">
+        <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+          <p className="mb-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
+            Récupérer les catégories disponibles
+          </p>
+          <pre className="overflow-x-auto text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">{`GET /api/v1/changelog/categories
+# Pas d'authentification requise
+
+# Réponse :
+[
+  { "value": "NEW",      "label": "New" },
+  { "value": "IMPROVED", "label": "Improved" },
+  { "value": "FIXED",    "label": "Fixed" },
+  { "value": "BETA",     "label": "Beta" }
+]`}</pre>
+        </div>
+
+        <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+          <p className="mb-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
+            Publier un changelog via l&apos;API
+          </p>
+          <pre className="overflow-x-auto text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">{`POST /api/v1/changelog
 Authorization: Bearer <api_key>
 Content-Type: application/json
 
 {
   "title": "v2.0.0",
   "content": "<p>Description en HTML</p>",
-  "categories": ["New", "Fixed"],
-  "featuredImage": "https://...",   // optionnel
-  "publishedAt": "2026-02-27",      // optionnel
-  "state": "LIVE"                   // "LIVE" | "DRAFT"
+  "categories": ["NEW", "FIXED"],  // valeurs du GET /categories
+  "featuredImage": "https://...",  // optionnel
+  "publishedAt": "2026-02-27",     // optionnel
+  "state": "LIVE"                  // "LIVE" | "DRAFT"
 }`}</pre>
+        </div>
       </div>
 
       <ApiKeysManager initialKeys={serialized} />

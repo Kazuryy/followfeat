@@ -6,13 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChangelogEditor } from "@/components/changelog/changelog-editor";
 import { cn } from "@/lib/utils";
-
-const CATEGORIES = [
-  { value: "NEW", label: "New" },
-  { value: "IMPROVED", label: "Improved" },
-  { value: "FIXED", label: "Fixed" },
-  { value: "BETA", label: "Beta" },
-];
+import { CHANGELOG_CATEGORIES as CATEGORIES } from "@/lib/changelog-categories";
 
 interface ChangelogFormProps {
   entryId?: string;

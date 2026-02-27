@@ -10,8 +10,7 @@ services:
     environment:
       DATABASE_URL: "file:/app/data/followfeat.db"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:-change-me-in-production}"
-      BETTER_AUTH_URL: "${BETTER_AUTH_URL:-http://localhost:3000}"
-      NEXT_PUBLIC_BETTER_AUTH_URL: "${BETTER_AUTH_URL:-http://localhost:3000}"
+      BETTER_AUTH_URL: "${BETTER_AUTH_URL}"
       AUTHENTIK_CLIENT_ID: "${AUTHENTIK_CLIENT_ID}"
       AUTHENTIK_CLIENT_SECRET: "${AUTHENTIK_CLIENT_SECRET}"
       AUTHENTIK_ISSUER: "${AUTHENTIK_ISSUER}"

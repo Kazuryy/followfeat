@@ -10,6 +10,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { ArrowLeft } from "lucide-react";
 import { AdminPostActions } from "@/components/posts/admin-post-actions";
+import { EditPostDialog } from "@/components/posts/edit-post-dialog";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +33,7 @@ export default async function PostPage({ params }: PageProps) {
     include: {
       board: true,
       status: true,
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, name: true, image: true, avatarColor: true } },
       tags: true,
       _count: { select: { comments: true, votes: true } },
     },
@@ -44,13 +45,16 @@ export default async function PostPage({ params }: PageProps) {
   const userId = session?.user?.id;
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
 
-  const [userVote, statuses] = await Promise.all([
+  const isAuthor = userId === post.author.id;
+
+  const [userVote, statuses, allTags] = await Promise.all([
     userId
       ? prisma.vote.findUnique({
           where: { postId_userId: { postId: post.id, userId } },
         })
       : Promise.resolve(null),
     isAdmin ? prisma.status.findMany({ orderBy: { position: "asc" } }) : Promise.resolve([]),
+    (isAuthor || isAdmin) ? prisma.tag.findMany({ orderBy: { name: "asc" } }) : Promise.resolve([]),
   ]);
 
   return (
@@ -109,6 +113,7 @@ export default async function PostPage({ params }: PageProps) {
             <Avatar
               name={post.author.name}
               image={post.author.image}
+              color={post.author.avatarColor}
               size={24}
             />
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -116,6 +121,15 @@ export default async function PostPage({ params }: PageProps) {
             </span>
           </Link>
           <span className="text-xs text-zinc-500 dark:text-zinc-400">· {formatDate(post.createdAt)}</span>
+          {isAuthor && (
+            <EditPostDialog
+              postId={post.id}
+              initialTitle={post.title}
+              initialContent={post.content}
+              initialTagIds={post.tags.map((t) => t.id)}
+              allTags={allTags}
+            />
+          )}
           {post.eta && (
             <span className="ml-auto text-xs text-zinc-400 dark:text-zinc-500">
               ETA: {formatDate(post.eta)}

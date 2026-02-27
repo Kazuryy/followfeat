@@ -46,7 +46,7 @@ export function PostCard({ post, userVoted = false }: PostCardProps) {
 
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <Badge color={post.status.color}>{post.status.name}</Badge>
-          <Badge className="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+          <Badge color={post.board.color ?? undefined}>
             {post.board.icon} {post.board.name}
           </Badge>
           {post.tags.map((tag) => (

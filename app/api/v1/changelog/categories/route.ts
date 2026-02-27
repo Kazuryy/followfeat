@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
-import { CHANGELOG_CATEGORIES } from "@/lib/changelog-categories";
+import { prisma } from "@/lib/db";
 
 /**
  * GET /api/v1/changelog/categories
- * Returns the list of available changelog category badges.
+ * Returns the list of available changelog categories from the database.
  * No authentication required.
  */
-export function GET() {
-  return NextResponse.json(CHANGELOG_CATEGORIES);
+export async function GET() {
+  const categories = await prisma.changelogCategory.findMany({
+    orderBy: { position: "asc" },
+    select: { value: true, label: true, color: true },
+  });
+  return NextResponse.json(categories);
 }

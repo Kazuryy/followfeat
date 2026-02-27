@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChangelogCategoryBadge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
-import { Plus } from "lucide-react";
+import { Plus, Tag } from "lucide-react";
 import { DeleteChangelogButton } from "./delete-button";
 import type { Metadata } from "next";
 
@@ -11,9 +11,15 @@ export const metadata: Metadata = { title: "Manage Changelog" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminChangelogPage() {
-  const entries = await prisma.changelogEntry.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const [entries, allCategories] = await Promise.all([
+    prisma.changelogEntry.findMany({ orderBy: { createdAt: "desc" } }),
+    prisma.changelogCategory.findMany({ orderBy: { position: "asc" } }),
+  ]);
+
+  type Category = { value: string; label: string; color: string };
+  const categoryMap: Record<string, Category> = Object.fromEntries(
+    allCategories.map((c) => [c.value, c])
+  );
 
   const parsed = entries.map((e) => ({
     ...e,
@@ -26,12 +32,20 @@ export default async function AdminChangelogPage() {
         <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
           Changelog
         </h1>
-        <Link href="/admin/changelog/new">
-          <Button size="sm">
-            <Plus size={14} />
-            New Entry
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/changelog/categories">
+            <Button size="sm" variant="secondary">
+              <Tag size={14} />
+              Categories
+            </Button>
+          </Link>
+          <Link href="/admin/changelog/new">
+            <Button size="sm">
+              <Plus size={14} />
+              New Entry
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 overflow-hidden">
@@ -68,9 +82,16 @@ export default async function AdminChangelogPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {entry.categories.map((cat) => (
-                        <ChangelogCategoryBadge key={cat} category={cat} />
-                      ))}
+                      {entry.categories.map((val) => {
+                        const cat = categoryMap[val];
+                        return (
+                          <ChangelogCategoryBadge
+                            key={val}
+                            label={cat?.label ?? val}
+                            color={cat?.color ?? "#71717a"}
+                          />
+                        );
+                      })}
                     </div>
                   </td>
                   <td className="px-4 py-3">

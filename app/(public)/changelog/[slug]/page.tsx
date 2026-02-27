@@ -22,11 +22,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ChangelogEntryPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const entry = await prisma.changelogEntry.findUnique({
-    where: { slug },
-  });
+  const [entry, allCategories] = await Promise.all([
+    prisma.changelogEntry.findUnique({ where: { slug } }),
+    prisma.changelogCategory.findMany({ orderBy: { position: "asc" } }),
+  ]);
 
   if (!entry || entry.state !== "LIVE") notFound();
+
+  type Category = { value: string; label: string; color: string };
+  const categoryMap: Record<string, Category> = Object.fromEntries(
+    allCategories.map((c) => [c.value, c])
+  );
 
   const categories = JSON.parse(entry.categories) as string[];
 
@@ -55,9 +61,16 @@ export default async function ChangelogEntryPage({ params }: PageProps) {
         <div className="p-6">
           {/* Meta */}
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            {categories.map((cat) => (
-              <ChangelogCategoryBadge key={cat} category={cat} />
-            ))}
+            {categories.map((val) => {
+              const cat = categoryMap[val];
+              return (
+                <ChangelogCategoryBadge
+                  key={val}
+                  label={cat?.label ?? val}
+                  color={cat?.color ?? "#71717a"}
+                />
+              );
+            })}
             <span className="text-xs text-zinc-400 dark:text-zinc-500">
               {entry.publishedAt ? formatDate(entry.publishedAt) : ""}
             </span>

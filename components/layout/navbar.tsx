@@ -7,7 +7,7 @@ import { signOut, useSession, signIn } from "@/lib/auth-client";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, User } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const navLinks = [
@@ -83,6 +83,14 @@ export function Navbar() {
                     {session.user.email}
                   </div>
                   <div className="my-1 border-t border-zinc-100 dark:border-zinc-800" />
+                  <Link
+                    href={`/u/${session.user.id}`}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <User size={14} />
+                    My profile
+                  </Link>
                   {(session.user as { role?: string }).role === "admin" && (
                     <Link
                       href="/admin"

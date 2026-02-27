@@ -105,14 +105,17 @@ export default async function PostPage({ params }: PageProps) {
         )}
 
         <div className="mt-5 flex items-center gap-2 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-          <Avatar
-            name={post.author.name}
-            image={post.author.image}
-            size={24}
-          />
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">
-            {post.author.name ?? "Anonymous"} · {formatDate(post.createdAt)}
-          </span>
+          <Link href={`/u/${post.author.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Avatar
+              name={post.author.name}
+              image={post.author.image}
+              size={24}
+            />
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              {post.author.name ?? "Anonymous"}
+            </span>
+          </Link>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">· {formatDate(post.createdAt)}</span>
           {post.eta && (
             <span className="ml-auto text-xs text-zinc-400 dark:text-zinc-500">
               ETA: {formatDate(post.eta)}

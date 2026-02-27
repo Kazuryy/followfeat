@@ -6,9 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChangelogEditor } from "@/components/changelog/changelog-editor";
 import { cn } from "@/lib/utils";
-import { CHANGELOG_CATEGORIES as CATEGORIES } from "@/lib/changelog-categories";
+
+interface Category {
+  value: string;
+  label: string;
+  color: string;
+}
 
 interface ChangelogFormProps {
+  availableCategories: Category[];
   entryId?: string;
   initialData?: {
     title: string;
@@ -20,7 +26,11 @@ interface ChangelogFormProps {
   };
 }
 
-export function ChangelogForm({ entryId, initialData }: ChangelogFormProps) {
+export function ChangelogForm({
+  availableCategories,
+  entryId,
+  initialData,
+}: ChangelogFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initialData?.title ?? "");
   const [content, setContent] = useState(initialData?.content ?? "");
@@ -33,9 +43,9 @@ export function ChangelogForm({ entryId, initialData }: ChangelogFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const toggleCategory = (cat: string) => {
+  const toggleCategory = (val: string) => {
     setCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(val) ? prev.filter((c) => c !== val) : [...prev, val]
     );
   };
 
@@ -93,28 +103,32 @@ export function ChangelogForm({ entryId, initialData }: ChangelogFormProps) {
       </div>
 
       {/* Categories */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Categories
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.value}
-              type="button"
-              onClick={() => toggleCategory(cat.value)}
-              className={cn(
-                "rounded-full px-3 py-1 text-sm font-medium transition-colors border",
-                categories.includes(cat.value)
-                  ? "bg-zinc-900 border-zinc-900 text-white dark:bg-zinc-50 dark:border-zinc-50 dark:text-zinc-900"
-                  : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-800 dark:text-zinc-400"
-              )}
-            >
-              {cat.label}
-            </button>
-          ))}
+      {availableCategories.length > 0 && (
+        <div>
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Categories
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {availableCategories.map((cat) => (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => toggleCategory(cat.value)}
+                style={
+                  categories.includes(cat.value)
+                    ? { backgroundColor: cat.color, borderColor: cat.color, color: "#fff" }
+                    : { borderColor: cat.color + "40", color: cat.color }
+                }
+                className={cn(
+                  "rounded-full px-3 py-1 text-sm font-medium transition-colors border"
+                )}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Featured image */}
       <div>

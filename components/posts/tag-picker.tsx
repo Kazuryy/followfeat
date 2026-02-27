@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Plus } from "lucide-react";
 
 interface Tag {
@@ -20,8 +20,10 @@ export function TagPicker({ postId, initialTags, onChange }: TagPickerProps) {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     fetch("/api/tags")
@@ -29,9 +31,21 @@ export function TagPicker({ postId, initialTags, onChange }: TagPickerProps) {
       .then(setAllTags);
   }, []);
 
+  const openDropdown = useCallback(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    }
+    setOpen(true);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const inContainer = containerRef.current?.contains(target);
+      const inDropdown = document.getElementById("tag-picker-dropdown")?.contains(target);
+      if (!inContainer && !inDropdown) {
         setOpen(false);
         setQuery("");
       }
@@ -111,10 +125,8 @@ export function TagPicker({ postId, initialTags, onChange }: TagPickerProps) {
           </span>
         ))}
         <button
-          onClick={() => {
-            setOpen(true);
-            setTimeout(() => inputRef.current?.focus(), 50);
-          }}
+          ref={triggerRef}
+          onClick={openDropdown}
           className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-zinc-300 px-1.5 py-0.5 text-[10px] text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 dark:border-zinc-700 dark:hover:border-zinc-500"
         >
           <Plus size={9} />
@@ -123,7 +135,11 @@ export function TagPicker({ postId, initialTags, onChange }: TagPickerProps) {
       </div>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-zinc-950">
+        <div
+          id="tag-picker-dropdown"
+          className="fixed z-50 w-48 rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
+          style={{ top: dropdownPos.top, left: dropdownPos.left }}
+        >
           <div className="p-2">
             <input
               ref={inputRef}

@@ -13,12 +13,14 @@ import {
   KeyRound,
   Settings,
   ArrowLeft,
+  Tag,
 } from "lucide-react";
 
 const adminLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/posts", label: "Posts", icon: MessageSquare },
   { href: "/admin/boards", label: "Boards", icon: Grid2X2 },
+  { href: "/admin/tags", label: "Services", icon: Tag },
   { href: "/admin/roadmap", label: "Roadmap", icon: Map },
   { href: "/admin/changelog", label: "Changelog", icon: FileText },
   { href: "/admin/members", label: "Members", icon: Users },

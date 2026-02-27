@@ -19,10 +19,18 @@ function getExcerpt(html: string): string {
 }
 
 export default async function ChangelogPage() {
-  const entries = await prisma.changelogEntry.findMany({
-    where: { state: "LIVE" },
-    orderBy: { publishedAt: "desc" },
-  });
+  const [entries, allCategories] = await Promise.all([
+    prisma.changelogEntry.findMany({
+      where: { state: "LIVE" },
+      orderBy: { publishedAt: "desc" },
+    }),
+    prisma.changelogCategory.findMany({ orderBy: { position: "asc" } }),
+  ]);
+
+  type Category = { value: string; label: string; color: string };
+  const categoryMap: Record<string, Category> = Object.fromEntries(
+    allCategories.map((c) => [c.value, c])
+  );
 
   const parsed = entries.map((e) => ({
     ...e,
@@ -70,9 +78,16 @@ export default async function ChangelogPage() {
                   {/* Categories */}
                   {entry.categories.length > 0 && (
                     <div className="mb-2 flex flex-wrap gap-1.5">
-                      {entry.categories.map((cat) => (
-                        <ChangelogCategoryBadge key={cat} category={cat} />
-                      ))}
+                      {entry.categories.map((val) => {
+                        const cat = categoryMap[val];
+                        return (
+                          <ChangelogCategoryBadge
+                            key={val}
+                            label={cat?.label ?? val}
+                            color={cat?.color ?? "#71717a"}
+                          />
+                        );
+                      })}
                     </div>
                   )}
 

@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -84,6 +85,7 @@ model Board {
   name      String
   slug      String   @unique
   icon      String?
+  color     String?
   position  Int      @default(0)
   posts     Post[]
   createdAt DateTime @default(now())
@@ -173,6 +175,14 @@ model ChangelogEntry {
 enum PublishState {
   DRAFT
   LIVE
+}
+
+model ChangelogCategory {
+  id       String @id @default(cuid())
+  value    String @unique // machine name stored in ChangelogEntry.categories JSON
+  label    String
+  color    String // hex color, e.g. "#22c55e"
+  position Int    @default(0)
 }
 
 model NotificationSettings {

@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { title, content, boardId } = body;
+  const { title, content, boardId, tagIds } = body;
 
   if (!title?.trim()) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -87,6 +87,9 @@ export async function POST(req: NextRequest) {
       boardId,
       statusId: defaultStatus.id,
       authorId: session.user.id,
+      ...(Array.isArray(tagIds) && tagIds.length > 0 && {
+        tags: { connect: tagIds.map((id: string) => ({ id })) },
+      }),
     },
     include: {
       board: true,

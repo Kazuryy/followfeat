@@ -37,9 +37,10 @@ export default async function FeedbackPage({ searchParams }: PageProps) {
         ? [{ isPinned: "desc" }, { voteCount: "desc" }]
         : [{ isPinned: "desc" }, { updatedAt: "desc" }, { voteCount: "desc" }];
 
-  const [boards, statuses, posts] = await Promise.all([
+  const [boards, statuses, tags, posts] = await Promise.all([
     prisma.board.findMany({ orderBy: { position: "asc" } }),
     prisma.status.findMany({ orderBy: { position: "asc" } }),
+    prisma.tag.findMany({ orderBy: { name: "asc" } }),
     prisma.post.findMany({
       where: {
         ...(board !== "all" && {
@@ -111,6 +112,12 @@ export default async function FeedbackPage({ searchParams }: PageProps) {
                     : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
                 )}
               >
+                {b.color && board !== b.slug && (
+                  <span
+                    className="h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: b.color }}
+                  />
+                )}
                 {b.icon} {b.name}
               </Link>
             ))}
@@ -176,7 +183,7 @@ export default async function FeedbackPage({ searchParams }: PageProps) {
             ))}
           </div>
 
-          <NewPostForm boards={boards} />
+          <NewPostForm boards={boards} tags={tags} />
         </div>
 
         {/* Posts list */}

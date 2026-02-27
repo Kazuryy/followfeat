@@ -11,7 +11,15 @@ interface PageProps {
 
 export default async function EditChangelogPage({ params }: PageProps) {
   const { id } = await params;
-  const entry = await prisma.changelogEntry.findUnique({ where: { id } });
+
+  const [entry, availableCategories] = await Promise.all([
+    prisma.changelogEntry.findUnique({ where: { id } }),
+    prisma.changelogCategory.findMany({
+      orderBy: { position: "asc" },
+      select: { value: true, label: true, color: true },
+    }),
+  ]);
+
   if (!entry) notFound();
 
   return (
@@ -20,6 +28,7 @@ export default async function EditChangelogPage({ params }: PageProps) {
         Edit Changelog Entry
       </h1>
       <ChangelogForm
+        availableCategories={availableCategories}
         entryId={entry.id}
         initialData={{
           title: entry.title,

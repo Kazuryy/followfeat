@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { ChevronUp, MessageSquare, CalendarDays } from "lucide-react";
 import { headers } from "next/headers";
+import { AvatarColorPicker } from "@/components/profile/avatar-color-picker";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,7 @@ export default async function UserProfilePage({ params }: PageProps) {
         name: true,
         email: true,
         image: true,
+        avatarColor: true,
         createdAt: true,
         role: true,
         _count: { select: { posts: true, comments: true } },
@@ -85,7 +87,7 @@ export default async function UserProfilePage({ params }: PageProps) {
       {/* Profile header */}
       <div className="mb-8 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex items-start gap-5">
-          <Avatar name={user.name} image={user.image} size={72} />
+          <Avatar name={user.name} image={user.image} color={user.avatarColor} size={72} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
@@ -101,6 +103,9 @@ export default async function UserProfilePage({ params }: PageProps) {
               <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
                 {user.email}
               </p>
+            )}
+            {isOwnProfile && !user.image && (
+              <AvatarColorPicker name={user.name} currentColor={user.avatarColor} />
             )}
             <p className="mt-1.5 flex items-center gap-1.5 text-xs text-zinc-400 dark:text-zinc-500">
               <CalendarDays size={12} />

@@ -20,6 +20,7 @@ model user {
   updatedAt     DateTime
   role          String    @default("user")
   banned        Boolean   @default(false)
+  avatarColor   String?
   sessions      session[]
   accounts      account[]
   posts         Post[]

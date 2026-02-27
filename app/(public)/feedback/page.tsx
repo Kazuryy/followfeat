@@ -56,7 +56,7 @@ export default async function FeedbackPage({ searchParams }: PageProps) {
       include: {
         board: true,
         status: true,
-        author: { select: { id: true, name: true, image: true } },
+        author: { select: { id: true, name: true, image: true, avatarColor: true } },
         tags: true,
         _count: { select: { comments: true, votes: true } },
       },

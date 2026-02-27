@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     include: {
       board: true,
       status: true,
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, name: true, image: true, avatarColor: true } },
       tags: true,
       _count: { select: { comments: true, votes: true } },
     },
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     include: {
       board: true,
       status: true,
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, name: true, image: true, avatarColor: true } },
       tags: true,
       _count: { select: { comments: true, votes: true } },
     },

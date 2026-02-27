@@ -18,6 +18,7 @@ interface Comment {
     id: string;
     name: string | null;
     image: string | null;
+    avatarColor: string | null;
   };
 }
 
@@ -75,6 +76,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
               <Avatar
                 name={comment.author.name}
                 image={comment.author.image}
+                color={comment.author.avatarColor}
                 size={32}
               />
               <div className="flex-1">

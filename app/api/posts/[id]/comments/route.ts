@@ -14,7 +14,7 @@ export async function GET(
     where: { postId: id },
     orderBy: [{ isPinned: "desc" }, { createdAt: "asc" }],
     include: {
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, name: true, image: true, avatarColor: true } },
     },
   });
   return NextResponse.json(comments);
@@ -46,7 +46,7 @@ export async function POST(
         authorId: session.user.id,
       },
       include: {
-        author: { select: { id: true, name: true, image: true } },
+        author: { select: { id: true, name: true, image: true, avatarColor: true } },
       },
     }),
     prisma.post.findUnique({

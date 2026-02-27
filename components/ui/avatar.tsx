@@ -3,10 +3,24 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
+export const AVATAR_COLORS = [
+  "#3b82f6", // blue
+  "#8b5cf6", // violet
+  "#10b981", // emerald
+  "#f59e0b", // amber
+  "#ef4444", // red
+  "#ec4899", // pink
+  "#06b6d4", // cyan
+  "#6366f1", // indigo
+  "#f97316", // orange
+  "#14b8a6", // teal
+];
+
 interface AvatarProps {
   name?: string | null;
   image?: string | null;
   size?: number;
+  color?: string | null;
   className?: string;
 }
 
@@ -20,38 +34,38 @@ function getInitials(name?: string | null): string {
     .toUpperCase();
 }
 
-function getColor(name?: string | null): string {
-  const colors = [
-    "bg-blue-500",
-    "bg-violet-500",
-    "bg-emerald-500",
-    "bg-amber-500",
-    "bg-red-500",
-    "bg-pink-500",
-    "bg-cyan-500",
-    "bg-indigo-500",
-  ];
-  if (!name) return colors[0];
-  const idx = name.charCodeAt(0) % colors.length;
-  return colors[idx];
+function getFallbackColor(name?: string | null): string {
+  if (!name) return AVATAR_COLORS[0];
+  const idx = name.charCodeAt(0) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[idx];
 }
 
-function Initials({ name, size, className }: { name?: string | null; size: number; className?: string }) {
+function Initials({
+  name,
+  size,
+  color,
+  className,
+}: {
+  name?: string | null;
+  size: number;
+  color?: string | null;
+  className?: string;
+}) {
+  const bg = color ?? getFallbackColor(name);
   return (
     <span
       className={cn(
         "inline-flex items-center justify-center rounded-full text-white font-medium shrink-0",
-        getColor(name),
         className
       )}
-      style={{ width: size, height: size, fontSize: size * 0.375 }}
+      style={{ width: size, height: size, fontSize: size * 0.375, backgroundColor: bg }}
     >
       {getInitials(name)}
     </span>
   );
 }
 
-export function Avatar({ name, image, size = 32, className }: AvatarProps) {
+export function Avatar({ name, image, size = 32, color, className }: AvatarProps) {
   const [error, setError] = useState(false);
 
   if (image && !error) {
@@ -71,5 +85,5 @@ export function Avatar({ name, image, size = 32, className }: AvatarProps) {
     );
   }
 
-  return <Initials name={name} size={size} className={className} />;
+  return <Initials name={name} size={size} color={color} className={className} />;
 }

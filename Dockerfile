@@ -4,7 +4,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # ─── Install dependencies ──────────────────────────────────────────────────
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 # ─── Build ────────────────────────────────────────────────────────────────
@@ -14,6 +14,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN pnpm prisma generate
+# Compile seed.ts to plain CJS so the runner stage doesn't need tsx
+RUN node_modules/.bin/esbuild prisma/seed.ts \
+    --platform=node --format=cjs --bundle \
+    --external:@prisma/client \
+    --outfile=prisma/seed.js
 RUN pnpm build
 
 # ─── Production runner ────────────────────────────────────────────────────

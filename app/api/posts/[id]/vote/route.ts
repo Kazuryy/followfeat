@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { notifyVoteThreshold } from "@/lib/notify";
+import { logger } from "@/lib/logger";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,6 +31,7 @@ export async function POST(
         data: { voteCount: { decrement: 1 } },
       }),
     ]);
+    logger.info("post.unvoted", { postId: id, userId });
     return NextResponse.json({ voted: false });
   } else {
     // Toggle on
@@ -40,6 +42,7 @@ export async function POST(
         data: { voteCount: { increment: 1 } },
       }),
     ]);
+    logger.info("post.voted", { postId: id, userId, voteCount: updatedPost.voteCount });
 
     // Check vote threshold
     const settings = await prisma.notificationSettings.findUnique({ where: { id: "singleton" } });

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/utils";
 import { notifyNewPost } from "@/lib/notify";
+import { logger } from "@/lib/logger";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -101,6 +102,14 @@ export async function POST(req: NextRequest) {
   });
 
   notifyNewPost(post).catch(() => {});
+
+  logger.info("post.created", {
+    postId: post.id,
+    slug: post.slug,
+    title: post.title,
+    userId: session.user.id,
+    boardId,
+  });
 
   return NextResponse.json(post, { status: 201 });
 }

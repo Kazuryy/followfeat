@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { notifyNewComment } from "@/lib/notify";
+import { logger } from "@/lib/logger";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -57,6 +58,12 @@ export async function POST(
   if (post && post.author.id !== session.user.id) {
     notifyNewComment(post, comment.author, post.author.email).catch(() => {});
   }
+
+  logger.info("comment.created", {
+    commentId: comment.id,
+    postId: id,
+    userId: session.user.id,
+  });
 
   return NextResponse.json(comment, { status: 201 });
 }

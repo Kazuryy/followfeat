@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,11 @@ export function NewPostForm({ boards, tags, onCreated, defaultBoardId }: NewPost
   const [content, setContent] = useState("");
   const [boardId, setBoardId] = useState(defaultBoardId ?? boards[0]?.id ?? "");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [localTags, setLocalTags] = useState<Tag[]>(tags);
+  const [newTagInput, setNewTagInput] = useState("");
+  const [addingTag, setAddingTag] = useState(false);
+  const [showTagInput, setShowTagInput] = useState(false);
+  const tagInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,6 +38,25 @@ export function NewPostForm({ boards, tags, onCreated, defaultBoardId }: NewPost
     setSelectedTagIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+
+  const handleAddTag = async () => {
+    const name = newTagInput.trim();
+    if (!name) { setShowTagInput(false); return; }
+    setAddingTag(true);
+    const res = await fetch("/api/tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    setAddingTag(false);
+    if (res.ok) {
+      const tag: Tag = await res.json();
+      setLocalTags((prev) => prev.some((t) => t.id === tag.id) ? prev : [...prev, tag]);
+      setSelectedTagIds((prev) => prev.includes(tag.id) ? prev : [...prev, tag.id]);
+    }
+    setNewTagInput("");
+    setShowTagInput(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,40 +135,63 @@ export function NewPostForm({ boards, tags, onCreated, defaultBoardId }: NewPost
             </Select>
           </div>
 
-          {tags.length > 0 && (
-            <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Service / App
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => {
-                  const selected = selectedTagIds.includes(tag.id);
-                  return (
-                    <button
-                      key={tag.id}
-                      type="button"
-                      onClick={() => toggleTag(tag.id)}
-                      className={cn(
-                        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                        selected
-                          ? "border-transparent text-white"
-                          : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-800 dark:text-zinc-400"
-                      )}
-                      style={
-                        selected
-                          ? { backgroundColor: tag.color ?? "#18181b", borderColor: tag.color ?? "#18181b" }
-                          : tag.color
-                          ? { borderColor: tag.color + "50", color: tag.color }
-                          : undefined
-                      }
-                    >
-                      {tag.name}
-                    </button>
-                  );
-                })}
-              </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Service / App
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {localTags.map((tag) => {
+                const selected = selectedTagIds.includes(tag.id);
+                return (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => toggleTag(tag.id)}
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                      selected
+                        ? "border-transparent text-white"
+                        : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-800 dark:text-zinc-400"
+                    )}
+                    style={
+                      selected
+                        ? { backgroundColor: tag.color ?? "#18181b", borderColor: tag.color ?? "#18181b" }
+                        : tag.color
+                        ? { borderColor: tag.color + "50", color: tag.color }
+                        : undefined
+                    }
+                  >
+                    {tag.name}
+                  </button>
+                );
+              })}
+
+              {showTagInput ? (
+                <input
+                  ref={tagInputRef}
+                  autoFocus
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); handleAddTag(); }
+                    if (e.key === "Escape") { setShowTagInput(false); setNewTagInput(""); }
+                  }}
+                  onBlur={handleAddTag}
+                  disabled={addingTag}
+                  placeholder="Service name…"
+                  className="h-6 rounded-full border border-dashed border-zinc-300 bg-transparent px-3 text-xs text-zinc-600 outline-none placeholder:text-zinc-400 dark:border-zinc-600 dark:text-zinc-400"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowTagInput(true)}
+                  className="rounded-full border border-dashed border-zinc-300 px-3 py-1 text-xs text-zinc-400 transition-colors hover:border-zinc-400 hover:text-zinc-600 dark:border-zinc-700 dark:hover:border-zinc-500"
+                >
+                  + Add
+                </button>
+              )}
             </div>
-          )}
+          </div>
 
           {error && (
             <p className="text-sm text-red-500">{error}</p>

@@ -15,6 +15,12 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Placeholder values to silence Better Auth/Prisma warnings during build.
+# Real values are injected at runtime by docker-compose.
+ENV BETTER_AUTH_SECRET=build-placeholder
+ENV BETTER_AUTH_URL=http://localhost:3000
+ENV DATABASE_URL=file:/tmp/build-placeholder.db
+
 RUN pnpm prisma generate
 # Verify Prisma client loads correctly before building
 RUN node -e "require('@prisma/client'); console.log('Prisma client OK')"

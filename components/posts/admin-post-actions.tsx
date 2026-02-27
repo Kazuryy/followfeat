@@ -21,6 +21,8 @@ export function AdminPostActions({
   const [loading, setLoading] = useState(false);
 
   const canceledStatus = statuses.find((s) => s.type === "CANCELED");
+  const currentStatus = statuses.find((s) => s.id === statusId);
+  const isReviewing = currentStatus?.type === "REVIEWING";
 
   const updateStatus = async (newStatusId: string) => {
     setLoading(true);
@@ -54,7 +56,7 @@ export function AdminPostActions({
           ))}
         </select>
 
-        {canceledStatus && statusId !== canceledStatus.id && (
+        {canceledStatus && isReviewing && (
           <button
             onClick={() => updateStatus(canceledStatus.id)}
             disabled={loading}
